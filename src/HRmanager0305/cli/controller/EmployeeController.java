@@ -13,8 +13,6 @@ import java.util.List;
 
 public class EmployeeController {
 
-
-    // subMenu : 직원수만 확인하거나 해당 직원의 정보를 조회할 수 있다.
     private EmployeeService employeeService = new EmployeeServiceImpl();
     private EmployeeIO employeeIO = new EmployeeIO();
 
