@@ -183,7 +183,7 @@ public class EmployeeController {
         }
     }
 
-    private void displaySearchMenu(Scanner scanner) {
+    public void displaySearchMenu(Scanner scanner) {
         System.out.println("------ Search Menu ------");
         System.out.println("1. Search by Employee ID");
         System.out.println("2. Search by Last Name");
@@ -236,7 +236,7 @@ public class EmployeeController {
 
     }
 
-    private void displaySortMenu(Scanner scanner) {
+    public void displaySortMenu(Scanner scanner) {
         System.out.println("------ Sort Menu ------");
         System.out.println("1. Sort by Employee ID");
         System.out.println("2. Sort by Name");
