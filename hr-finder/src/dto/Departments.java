@@ -1,8 +1,5 @@
 package dto;
 
-import lombok.Data;
-
-@Data
 public class Departments {
     int department_id;
     String department_name;
