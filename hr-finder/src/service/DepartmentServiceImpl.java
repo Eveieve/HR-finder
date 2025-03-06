@@ -1,5 +1,6 @@
 package service;
 
+import dao.DepartmentDao;
 import dao.DepartmentDaoImpl;
 import dao.EmployeeDaoImpl;
 import dto.Departments;
@@ -10,25 +11,31 @@ import java.util.Collections;
 import java.util.List;
 
 public class DepartmentServiceImpl implements DepartmentService {
-    private final DepartmentDaoImpl departmentDao = new DepartmentDaoImpl();
+    private final DepartmentDao departmentDao = new DepartmentDaoImpl();
 
     @Override
     public List<Departments> addDepartments(Departments departments) {
-        var insertDepartments = departmentDao.addDepartments(departments);
-        insertDepartments.ifPresentOrElse(
-                e -> System.out.println("Successfully added departments: " + e),
-                () -> System.out.println("Failed to add departments with departments_id: " + departments.getDepartment_id())
-        );
-        return insertDepartments
-                .map(e -> new ArrayList<>(Collections.singletonList(e)))
-                .orElse(new ArrayList<>());
+        int departmentCount = departmentDao.countDepartmentId(departments.getDepartment_id());
+        if (departmentCount == 0) {
+            var insertDepartments = departmentDao.addDepartments(departments);
+            insertDepartments.ifPresentOrElse(
+                    e -> System.out.println("Successfully added departments: " + e),
+                    () -> System.out.println("Failed to add departments with departments_id: " + departments.getDepartment_id())
+            );
+            return insertDepartments
+                    .map(e -> new ArrayList<>(Collections.singletonList(e)))
+                    .orElse(new ArrayList<>());
+        }else{
+            System.out.println("The department ID cannot be duplicated to add a department");
+            return Collections.emptyList();
+        }
     }
 
     @Override
     public List<Departments> deleteDepartmentIfEmpty(int department_id) {
         int employeeCount = departmentDao.countEmployeesByDepartment(department_id);
         if (employeeCount == 0) {
-            var deletedDepartment = departmentDao.deleteDepartment(department_id);
+            var deletedDepartment = departmentDao.deleteDepartments(department_id);
             deletedDepartment.ifPresentOrElse(
                     d -> System.out.println("Successfully deleted department: " + d),
                     () -> System.out.println("Failed to delete department with department_id: " + department_id)

@@ -60,7 +60,6 @@ public class DepartmentController {
     }
     private void displayAddMenu(Scanner scanner) {
         System.out.println("------ Add Menu ------");
-        System.out.println("The department ID cannot be duplicated to add a department");
         addDepartment();
     }
 
@@ -83,8 +82,7 @@ public class DepartmentController {
 
     private void displayDeleteMenu(Scanner scanner) {
         System.out.println("------ Delete Menu ------");
-        System.out.println("2. Delete Employee Information");
-        System.out.print("Please Enter Departments ID: ");
+        System.out.print("Please Enter Departments ID : ");
         int department_id = scanner.nextInt();
         scanner.nextLine();
         departmentService.deleteDepartmentIfEmpty(department_id);
@@ -92,26 +90,26 @@ public class DepartmentController {
 
     private void displayUpdateMenu(Scanner scanner) {
         System.out.println("------ Update Menu ------");
-        System.out.println("Please Enter Departments ID: ");
+        System.out.println("Please Enter Department ID : ");
         int department_id = scanner.nextInt();
         scanner.nextLine();
 
-        System.out.println("1. Modify manager_id");
-        System.out.println("2. Modify department_name");
+        System.out.println("1. Update manager_id");
+        System.out.println("2. Update department_name");
         System.out.print("Select an option: ");
 
         int option = scanner.nextInt();
         scanner.nextLine();
         switch (option) {
             case 1:
-                System.out.println("[Update] Modify manager_id selected.");
+                System.out.println("[Update] Update manager_id selected.");
                 System.out.println("Please Enter manager_id : ");
                 int manager_id = scanner.nextInt();
                 scanner.nextLine();
                 departmentService.updateDepartmentsManger_id(department_id,manager_id);
                 break;
             case 2:
-                System.out.println("[Update] Modify department_name selected.");
+                System.out.println("[Update] Update department_name selected.");
                 System.out.println("Please Enter department_name : ");
                 String department_name = scanner.nextLine();
                 departmentService.updateDepartments_name(department_id,department_name);

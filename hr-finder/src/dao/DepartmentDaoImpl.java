@@ -6,17 +6,16 @@ import util.utildemo;
 import java.sql.*;
 import java.util.Optional;
 
-public class DepartmentDaoImpl {
-    Connection conn = null;
-    PreparedStatement pstmt = null;
+public class DepartmentDaoImpl implements DepartmentDao {
 
+    @Override
     public Optional<Departments> addDepartments(Departments departments) {
-
-        conn = utildemo.getConnection();
+        Connection conn = null;
+        PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            String insertSql = "INSERT INTO departments " +
-                    "VALUES (?,?,?,?)";
+            conn = utildemo.getConnection();
+            String insertSql = "INSERT INTO departments VALUES (?,?,?,?)";
             pstmt = conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
             pstmt.setInt(1, departments.getDepartment_id());
             pstmt.setString(2, departments.getDepartment_name());
@@ -25,8 +24,11 @@ public class DepartmentDaoImpl {
 
             int cnt = pstmt.executeUpdate();
             if (cnt > 0) {
-                if(pstmt != null) {
-                    try { pstmt.close(); } catch (SQLException e) { e.printStackTrace(); }
+                // pstmt 닫기 후 재사용
+                try {
+                    pstmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
                 String selectSql = "SELECT * FROM departments WHERE department_id = ?";
                 pstmt = conn.prepareStatement(selectSql);
@@ -47,23 +49,38 @@ public class DepartmentDaoImpl {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
+            // 모든 리소스 닫기
             if (rs != null) {
-                try { rs.close(); } catch (SQLException e) { e.printStackTrace(); }
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
             if (pstmt != null) {
-                try { pstmt.close(); } catch (SQLException e) { e.printStackTrace(); }
+                try {
+                    pstmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
             if (conn != null) {
-                try { conn.close(); } catch (SQLException e) { e.printStackTrace(); }
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }
         return Optional.empty();
     }
 
+    @Override
     public int countEmployeesByDepartment(int department_id) {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
+        int count = -1;
         try {
             conn = utildemo.getConnection();
             String sql = "SELECT COUNT(*) AS cnt FROM employees WHERE department_id = ?";
@@ -71,53 +88,148 @@ public class DepartmentDaoImpl {
             stmt.setInt(1, department_id);
             rs = stmt.executeQuery();
             if (rs.next()) {
-                return rs.getInt("cnt");
+                count = rs.getInt("cnt");
             }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                if (rs != null) rs.close();
-                if (stmt != null) stmt.close();
-                if (conn != null) conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }
-        return -1;
+        return count;
     }
 
-    public Optional<Departments> deleteDepartment(int department_id) {
+    @Override
+    public int countDepartmentId(int department_id) {
         Connection conn = null;
-        PreparedStatement deleteStmt = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        int count = -1;
         try {
             conn = utildemo.getConnection();
-            String deleteSql = "DELETE FROM departments WHERE department_id = ?";
-            deleteStmt = conn.prepareStatement(deleteSql);
-            deleteStmt.setInt(1, department_id);
-            int cnt = deleteStmt.executeUpdate();
-            if (cnt > 0) {
-                System.out.println("Successfully deleted department with department_id: " + department_id);
-                return Optional.empty();
+            String sql = "SELECT COUNT(*) AS cnt FROM departments WHERE department_id = ?";
+            stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, department_id);
+            rs = stmt.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt("cnt");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return count;
+    }
+
+    @Override
+    public Optional<Departments> deleteDepartments(int department_id) {
+        Connection conn = null;
+        PreparedStatement selectStmt = null;
+        PreparedStatement deleteStmt = null;
+        ResultSet rs = null;
+        try {
+            conn = utildemo.getConnection();
+            String selectSql = "SELECT * FROM departments WHERE department_id = ?";
+            selectStmt = conn.prepareStatement(selectSql);
+            selectStmt.setInt(1, department_id);
+            rs = selectStmt.executeQuery();
+            if (rs.next()) {
+                Departments dept = Departments.builder()
+                        .department_id(rs.getInt("department_id"))
+                        .department_name(rs.getString("department_name"))
+                        .manager_id(rs.getInt("manager_id"))
+                        .location_id(rs.getInt("location_id"))
+                        .build();
+
+                String deleteSql = "DELETE FROM departments WHERE department_id = ?";
+                deleteStmt = conn.prepareStatement(deleteSql);
+                deleteStmt.setInt(1, department_id);
+                int cnt = deleteStmt.executeUpdate();
+                if (cnt > 0) {
+                    System.out.println("Successfully deleted department with department_id: " + department_id);
+                    return Optional.of(dept);
+                } else {
+                    System.out.println("Failed to delete department with department_id: " + department_id);
+                }
             } else {
                 System.out.println("No department found with department_id: " + department_id);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                if (deleteStmt != null) deleteStmt.close();
-                if (conn != null) conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (selectStmt != null) {
+                try {
+                    selectStmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (deleteStmt != null) {
+                try {
+                    deleteStmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }
         return Optional.empty();
     }
 
-
-
-
+    @Override
     public Optional<Departments> updateDepartmentsManager_id(int department_id, int manager_id) {
         Connection conn = null;
         PreparedStatement updateStmt = null;
@@ -129,11 +241,9 @@ public class DepartmentDaoImpl {
             updateStmt = conn.prepareStatement(updateSql);
             updateStmt.setInt(1, manager_id);
             updateStmt.setInt(2, department_id);
-
             int cnt = updateStmt.executeUpdate();
             if (cnt > 0) {
                 System.out.println("Successfully updated departments with manager_id: " + manager_id);
-
                 String selectSql = "SELECT * FROM departments WHERE department_id = ?";
                 selectStmt = conn.prepareStatement(selectSql);
                 selectStmt.setInt(1, department_id);
@@ -153,18 +263,39 @@ public class DepartmentDaoImpl {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                if (rs != null) rs.close();
-                if (updateStmt != null) updateStmt.close();
-                if (selectStmt != null) selectStmt.close();
-                if (conn != null) conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (updateStmt != null) {
+                try {
+                    updateStmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (selectStmt != null) {
+                try {
+                    selectStmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }
         return Optional.empty();
     }
 
+    @Override
     public Optional<Departments> updateDepartments_name(int department_id, String department_name) {
         Connection conn = null;
         PreparedStatement updateStmt = null;
@@ -176,7 +307,6 @@ public class DepartmentDaoImpl {
             updateStmt = conn.prepareStatement(updateSql);
             updateStmt.setString(1, department_name);
             updateStmt.setInt(2, department_id);
-
             int cnt = updateStmt.executeUpdate();
             if (cnt > 0) {
                 System.out.println("Successfully updated departments with department_name: " + department_name);
@@ -199,25 +329,56 @@ public class DepartmentDaoImpl {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                if (rs != null) rs.close();
-                if (updateStmt != null) updateStmt.close();
-                if (selectStmt != null) selectStmt.close();
-                if (conn != null) conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (updateStmt != null) {
+                try {
+                    updateStmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (selectStmt != null) {
+                try {
+                    selectStmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }
         return Optional.empty();
     }
 }
-
-/* 트리거 혹시 몰라서 남겨두기용
-DROP TRIGGER IF EXISTS trg_departments_manager_update;
+/*
+-- 제약 조건 확인하는 법
+SELECT
+    CONSTRAINT_NAME,
+    TABLE_NAME,
+    COLUMN_NAME,
+    REFERENCED_TABLE_NAME,
+    REFERENCED_COLUMN_NAME
+FROM information_schema.KEY_COLUMN_USAGE
+WHERE TABLE_SCHEMA = 'hr'
+  AND TABLE_NAME = 'employees'
+  AND REFERENCED_TABLE_NAME IS NOT NULL;
+ */
+/*
 DELIMITER $$
 CREATE TRIGGER trg_departments_manager_update
-    AFTER UPDATE ON departments
-    FOR EACH ROW
+AFTER UPDATE ON departments
+FOR EACH ROW
 BEGIN
     IF NEW.manager_id <> OLD.manager_id THEN
         UPDATE employees
