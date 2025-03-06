@@ -3,18 +3,16 @@ package dao;
 import dto.EventBackup;
 import util.utildemo;
 
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class EventBackupDaoImp implements EventBackupDao{
+    Connection conn = null;
 
 
     public List<EventBackup> backup() {
-        Connection conn = null;
+        conn = null;
         List<EventBackup> backupList = new ArrayList<>();
 
         try {
