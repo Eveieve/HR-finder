@@ -66,8 +66,8 @@ public class DepartmentController {
     public void addDepartment() {
         int department_id = departmentIO.readDepartmentId();
         String department_name = departmentIO.readDepartmentName();
-        int department_manager_id = departmentIO.readDepartmentManagerId();
-        int department_location_id = departmentIO.readDepartmentLocation();
+        Integer department_manager_id = departmentIO.readDepartmentManagerId();
+        Integer department_location_id = departmentIO.readDepartmentLocation();
 
         new Departments();
         Departments departments = Departments.builder()

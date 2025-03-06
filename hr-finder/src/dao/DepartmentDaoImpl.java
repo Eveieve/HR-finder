@@ -19,8 +19,19 @@ public class DepartmentDaoImpl implements DepartmentDao {
             pstmt = conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
             pstmt.setInt(1, departments.getDepartment_id());
             pstmt.setString(2, departments.getDepartment_name());
-            pstmt.setInt(3, departments.getManager_id());
-            pstmt.setInt(4, departments.getLocation_id());
+            Integer manager_id = departments.getManager_id();
+            if (manager_id == null) {
+                pstmt.setNull(3, Types.INTEGER);
+            } else {
+                pstmt.setInt(3, manager_id);
+            }
+
+            Integer location_id = departments.getLocation_id();
+            if (location_id == null) {
+                pstmt.setNull(4, Types.INTEGER);
+            } else {
+                pstmt.setInt(4, location_id);
+            }
 
             int cnt = pstmt.executeUpdate();
             if (cnt > 0) {
@@ -34,11 +45,13 @@ public class DepartmentDaoImpl implements DepartmentDao {
                 pstmt.setInt(1, departments.getDepartment_id());
                 rs = pstmt.executeQuery();
                 if (rs.next()) {
+                    Integer managerId = (Integer) rs.getObject("manager_id");
+                    Integer locationId = (Integer) rs.getObject("location_id");
                     Departments inserted = Departments.builder()
                             .department_id(rs.getInt("department_id"))
                             .department_name(rs.getString("department_name"))
-                            .manager_id(rs.getInt("manager_id"))
-                            .location_id(rs.getInt("location_id"))
+                            .manager_id(managerId)
+                            .location_id(locationId)
                             .build();
                     return Optional.of(inserted);
                 }
@@ -172,11 +185,30 @@ public class DepartmentDaoImpl implements DepartmentDao {
             selectStmt.setInt(1, department_id);
             rs = selectStmt.executeQuery();
             if (rs.next()) {
+                Integer newManagerId = null;
+                Object obj = rs.getObject("manager_id");
+                if (obj != null) {
+                    if (obj instanceof Long) {
+                        newManagerId = ((Long)obj).intValue();
+                    } else if (obj instanceof Integer) {
+                        newManagerId = (Integer)obj;
+                    }
+                }
+                Integer newLocationId = null;
+                obj = rs.getObject("manager_id");
+                if (obj != null) {
+                    if (obj instanceof Long) {
+                        newManagerId = ((Long)obj).intValue();
+                    } else if (obj instanceof Integer) {
+                        newManagerId = (Integer)obj;
+                    }
+                }
+
                 Departments dept = Departments.builder()
                         .department_id(rs.getInt("department_id"))
                         .department_name(rs.getString("department_name"))
-                        .manager_id(rs.getInt("manager_id"))
-                        .location_id(rs.getInt("location_id"))
+                        .manager_id(newManagerId)
+                        .location_id(newLocationId)
                         .build();
 
                 String deleteSql = "DELETE FROM departments WHERE department_id = ?";
@@ -227,7 +259,6 @@ public class DepartmentDaoImpl implements DepartmentDao {
         return Optional.empty();
     }
 
-    @Override
     public Optional<Departments> updateDepartmentsManager_id(int department_id, int manager_id) {
         Connection conn = null;
         PreparedStatement updateStmt = null;
@@ -247,10 +278,20 @@ public class DepartmentDaoImpl implements DepartmentDao {
                 selectStmt.setInt(1, department_id);
                 rs = selectStmt.executeQuery();
                 if (rs.next()) {
+                    Integer newManagerId = null;
+                    Object obj = rs.getObject("manager_id");
+                    if (obj != null) {
+                        if (obj instanceof Long) {
+                            newManagerId = ((Long)obj).intValue();
+                        } else if (obj instanceof Integer) {
+                            newManagerId = (Integer)obj;
+                        }
+                    }
+
                     Departments department = Departments.builder()
                             .department_id(rs.getInt("department_id"))
                             .department_name(rs.getString("department_name"))
-                            .manager_id(rs.getInt("manager_id"))
+                            .manager_id(newManagerId)
                             .location_id(rs.getInt("location_id"))
                             .build();
                     return Optional.of(department);
@@ -262,32 +303,16 @@ public class DepartmentDaoImpl implements DepartmentDao {
             e.printStackTrace();
         } finally {
             if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+                try { rs.close(); } catch (SQLException e) { e.printStackTrace(); }
             }
             if (updateStmt != null) {
-                try {
-                    updateStmt.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+                try { updateStmt.close(); } catch (SQLException e) { e.printStackTrace(); }
             }
             if (selectStmt != null) {
-                try {
-                    selectStmt.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+                try { selectStmt.close(); } catch (SQLException e) { e.printStackTrace(); }
             }
             if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+                try { conn.close(); } catch (SQLException e) { e.printStackTrace(); }
             }
         }
         return Optional.empty();
@@ -313,11 +338,13 @@ public class DepartmentDaoImpl implements DepartmentDao {
                 selectStmt.setInt(1, department_id);
                 rs = selectStmt.executeQuery();
                 if (rs.next()) {
+                    Integer managerId = (Integer) rs.getObject("manager_id");
+                    Integer locationId = (Integer) rs.getObject("location_id");
                     Departments department = Departments.builder()
                             .department_id(rs.getInt("department_id"))
                             .department_name(rs.getString("department_name"))
-                            .manager_id(rs.getInt("manager_id"))
-                            .location_id(rs.getInt("location_id"))
+                            .manager_id(managerId)
+                            .location_id(locationId)
                             .build();
                     return Optional.of(department);
                 }

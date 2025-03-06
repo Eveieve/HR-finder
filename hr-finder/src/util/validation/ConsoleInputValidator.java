@@ -90,8 +90,21 @@ public class ConsoleInputValidator implements Validator {
         }
     }
 
-    public int readValidatedIntNoMax(String prompt, int min, String errorMessage) {
-        return readValidated(prompt, Integer::parseInt, i -> i >= min, errorMessage);
+    public Integer readValidatedIntNoMax(String prompt, int min, String errorMessage) {
+        System.out.print(prompt);
+        String input = scanner.nextLine();
+        if (input.trim().isEmpty()) {
+            return null;
+        }
+        try {
+            Integer value = Integer.parseInt(input);
+            if (value < min) {
+                throw new IllegalArgumentException(errorMessage);
+            }
+            return value;
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(errorMessage);
+        }
     }
 
 }
