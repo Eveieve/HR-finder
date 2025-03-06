@@ -26,10 +26,8 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public List<Departments> deleteDepartmentIfEmpty(int department_id) {
-        // 먼저 해당 부서에 속한 직원 수를 조회합니다.
         int employeeCount = departmentDao.countEmployeesByDepartment(department_id);
         if (employeeCount == 0) {
-            // 직원이 없는 경우에만 부서를 삭제합니다.
             var deletedDepartment = departmentDao.deleteDepartment(department_id);
             deletedDepartment.ifPresentOrElse(
                     d -> System.out.println("Successfully deleted department: " + d),
