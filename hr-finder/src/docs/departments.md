@@ -40,3 +40,7 @@
 ## 제약조건 삭제
 - 테이블 간의 제약조건을 모두 삭제
 - 트리거 trg_departments_manager_update를 만들어서 departments에서 manager_id를 변경했을 시 employees의 해당 manager_id도 변경되게 만듦
+
+# 중요사항
+departments 테이블의 제약조건을 삭제해야 정상 작동합니다.
+DAO 밑에 주석으로 관련 트리거와 제약조건 확인 쿼리문을 남겼으니 외래키 제약조건 삭제 하고 테스트해주세요

@@ -1,9 +1,12 @@
 package dao;
 
 import dto.Departments;
+import dto.EventBackup;
 import util.utildemo;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class DepartmentDaoImpl implements DepartmentDao {
@@ -189,18 +192,18 @@ public class DepartmentDaoImpl implements DepartmentDao {
                 Object obj = rs.getObject("manager_id");
                 if (obj != null) {
                     if (obj instanceof Long) {
-                        newManagerId = ((Long)obj).intValue();
+                        newManagerId = ((Long) obj).intValue();
                     } else if (obj instanceof Integer) {
-                        newManagerId = (Integer)obj;
+                        newManagerId = (Integer) obj;
                     }
                 }
                 Integer newLocationId = null;
                 obj = rs.getObject("manager_id");
                 if (obj != null) {
                     if (obj instanceof Long) {
-                        newManagerId = ((Long)obj).intValue();
+                        newManagerId = ((Long) obj).intValue();
                     } else if (obj instanceof Integer) {
-                        newManagerId = (Integer)obj;
+                        newManagerId = (Integer) obj;
                     }
                 }
 
@@ -282,9 +285,9 @@ public class DepartmentDaoImpl implements DepartmentDao {
                     Object obj = rs.getObject("manager_id");
                     if (obj != null) {
                         if (obj instanceof Long) {
-                            newManagerId = ((Long)obj).intValue();
+                            newManagerId = ((Long) obj).intValue();
                         } else if (obj instanceof Integer) {
-                            newManagerId = (Integer)obj;
+                            newManagerId = (Integer) obj;
                         }
                     }
 
@@ -303,16 +306,32 @@ public class DepartmentDaoImpl implements DepartmentDao {
             e.printStackTrace();
         } finally {
             if (rs != null) {
-                try { rs.close(); } catch (SQLException e) { e.printStackTrace(); }
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
             if (updateStmt != null) {
-                try { updateStmt.close(); } catch (SQLException e) { e.printStackTrace(); }
+                try {
+                    updateStmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
             if (selectStmt != null) {
-                try { selectStmt.close(); } catch (SQLException e) { e.printStackTrace(); }
+                try {
+                    selectStmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
             if (conn != null) {
-                try { conn.close(); } catch (SQLException e) { e.printStackTrace(); }
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }
         return Optional.empty();
@@ -385,7 +404,7 @@ public class DepartmentDaoImpl implements DepartmentDao {
         }
         return Optional.empty();
     }
-}
+
 /*
 -- 제약 조건 확인하는 법
 SELECT
@@ -413,3 +432,34 @@ BEGIN
 END $$
 DELIMITER ;
  */
+
+
+    public void backup() {
+        Connection conn = null;
+        List<EventBackup> backupList = new ArrayList<>();
+
+        try {
+            conn = utildemo.getConnection();
+            CallableStatement cs = conn.prepareCall("{call prc_backup()}");
+            ResultSet rs = cs.executeQuery();
+            while (rs.next()) {
+                EventBackup eventBackup = new EventBackup();
+                eventBackup.setBackup_id(rs.getInt("backup_id"));
+                eventBackup.setTable_name(rs.getString("table_name"));
+                eventBackup.setEvent_type(rs.getString("event_type"));
+                eventBackup.setBefore_change(rs.getString("before_change"));
+                eventBackup.setAfter_change(rs.getString("after_change"));
+                eventBackup.setEvent_time(rs.getDate("event_time"));
+                backupList.add(eventBackup);
+            }
+            for (EventBackup eventBackup : backupList) System.out.println(eventBackup);
+            if (rs != null) rs.close();
+            if (cs != null) cs.close();
+            if (conn != null) conn.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+}
