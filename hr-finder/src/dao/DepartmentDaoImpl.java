@@ -211,3 +211,19 @@ public class DepartmentDaoImpl {
         return Optional.empty();
     }
 }
+
+/* 트리거 혹시 몰라서 남겨두기용
+DROP TRIGGER IF EXISTS trg_departments_manager_update;
+DELIMITER $$
+CREATE TRIGGER trg_departments_manager_update
+    AFTER UPDATE ON departments
+    FOR EACH ROW
+BEGIN
+    IF NEW.manager_id <> OLD.manager_id THEN
+        UPDATE employees
+        SET manager_id = NEW.manager_id
+        WHERE department_id = NEW.department_id;
+    END IF;
+END $$
+DELIMITER ;
+ */
