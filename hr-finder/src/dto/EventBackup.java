@@ -14,11 +14,11 @@ public class EventBackup {
 
     @Override
     public String toString() {
-        return "backup_id : " + backup_id +
-                ", table_name :'" + table_name + '\'' +
-                ", event_type : '" + event_type + '\'' +
-                ", before_change :'" + before_change + '\'' +
-                ", after_change :'" + after_change + '\'' +
-                ", event_time : " + event_time;
-    }
+        return " backup_id : " + backup_id +
+                " | table_name :'" + table_name +
+                " | event_type : '" + event_type +
+                " | event_time : " + event_time +
+                " \nbefore_change :'" + before_change +
+                " \nafter_change :'" + after_change;
+                    }
 }
