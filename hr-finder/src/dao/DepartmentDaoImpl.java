@@ -24,7 +24,6 @@ public class DepartmentDaoImpl implements DepartmentDao {
 
             int cnt = pstmt.executeUpdate();
             if (cnt > 0) {
-                // pstmt 닫기 후 재사용
                 try {
                     pstmt.close();
                 } catch (SQLException e) {
@@ -49,7 +48,6 @@ public class DepartmentDaoImpl implements DepartmentDao {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            // 모든 리소스 닫기
             if (rs != null) {
                 try {
                     rs.close();
