@@ -33,7 +33,6 @@ public class ConsoleInputValidator implements Validator {
     public String readValidatedVarchar(String prompt, int maxLength, String errorMessage) {
         return readValidated(prompt, s -> s, s -> s.length() <= maxLength, errorMessage);
     }
-
     // String name = readValidatedVarchar("이름 (최대 20자): ", 20, "20자 이하로 입력하세요.");
 
     public BigDecimal readValidatedBigDecimal(String prompt,

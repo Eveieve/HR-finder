@@ -48,13 +48,30 @@ public class DepartmentDaoImpl implements DepartmentDao {
                 pstmt.setInt(1, departments.getDepartment_id());
                 rs = pstmt.executeQuery();
                 if (rs.next()) {
-                    Integer managerId = (Integer) rs.getObject("manager_id");
-                    Integer locationId = (Integer) rs.getObject("location_id");
+                    Integer newManagerId = null;
+                    Object obj = rs.getObject("manager_id");
+                    if (obj != null) {
+                        if (obj instanceof Long) {
+                            newManagerId = ((Long) obj).intValue();
+                        } else if (obj instanceof Integer) {
+                            newManagerId = (Integer) obj;
+                        }
+                    }
+                    Integer newLocationId = null;
+                    obj = rs.getObject("location_id");
+                    if (obj != null) {
+                        if (obj instanceof Long) {
+                            newLocationId = ((Long) obj).intValue();
+                        } else if (obj instanceof Integer) {
+                            newLocationId = (Integer) obj;
+                        }
+                    }
+
                     Departments inserted = Departments.builder()
                             .department_id(rs.getInt("department_id"))
                             .department_name(rs.getString("department_name"))
-                            .manager_id(managerId)
-                            .location_id(locationId)
+                            .manager_id(newManagerId)
+                            .location_id(newLocationId)
                             .build();
                     return Optional.of(inserted);
                 }
@@ -290,12 +307,21 @@ public class DepartmentDaoImpl implements DepartmentDao {
                             newManagerId = (Integer) obj;
                         }
                     }
+                    Integer newLocationId = null;
+                    obj = rs.getObject("location_id");
+                    if (obj != null) {
+                        if (obj instanceof Long) {
+                            newLocationId = ((Long) obj).intValue();
+                        } else if (obj instanceof Integer) {
+                            newLocationId = (Integer) obj;
+                        }
+                    }
 
                     Departments department = Departments.builder()
                             .department_id(rs.getInt("department_id"))
                             .department_name(rs.getString("department_name"))
                             .manager_id(newManagerId)
-                            .location_id(rs.getInt("location_id"))
+                            .location_id(newLocationId)
                             .build();
                     return Optional.of(department);
                 }
