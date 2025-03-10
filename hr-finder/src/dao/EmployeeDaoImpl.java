@@ -172,22 +172,50 @@ public class EmployeeDaoImpl implements EmployeeDao {
 
     @Override
     public Optional<Employees> deleteEmployee(int employeeId) {
-        conn = null;
+        Connection conn = null;
+        PreparedStatement selectStmt = null;
+        PreparedStatement deleteStmt = null;
+        ResultSet rs = null;
         try {
             conn = DBConnectionManager.getConnection();
-            String deleteSql = "DELETE FROM employees WHERE employee_id = ?";
-            pstmt = conn.prepareStatement(deleteSql);
-            pstmt.setInt(1, employeeId);
-            int cnt = pstmt.executeUpdate();
-            if (cnt > 0) {
-                System.out.println("Successfully deleted employee with id: " + employeeId);
+            // 1. 삭제 전 해당 직원 정보를 조회합니다.
+            String selectSql = "SELECT * FROM employees WHERE employee_id = ?";
+            selectStmt = conn.prepareStatement(selectSql);
+            selectStmt.setInt(1, employeeId);
+            rs = selectStmt.executeQuery();
+            if (rs.next()) {
+                Employees employee = Employees.builder()
+                        .employee_id(rs.getInt("employee_id"))
+                        .first_name(rs.getString("first_name"))
+                        .last_name(rs.getString("last_name"))
+                        .email(rs.getString("email"))
+                        .phone_number(rs.getString("phone_number"))
+                        .hire_date(rs.getDate("hire_date"))
+                        .job_id(rs.getString("job_id"))
+                        .salary(rs.getBigDecimal("salary"))
+                        .commission_pct(rs.getBigDecimal("commission_pct"))
+                        .manager_id(rs.getInt("manager_id"))
+                        .department_id(rs.getInt("department_id"))
+                        .build();
+                // 2. 직원 정보를 삭제합니다.
+                String deleteSql = "DELETE FROM employees WHERE employee_id = ?";
+                deleteStmt = conn.prepareStatement(deleteSql);
+                deleteStmt.setInt(1, employeeId);
+                int cnt = deleteStmt.executeUpdate();
+                if (cnt > 0) {
+                    System.out.println("Successfully deleted employee with id: " + employeeId);
+                    return Optional.of(employee);
+                } else {
+                    System.out.println("Failed to delete employee with employee_id: " + employeeId);
+                }
             } else {
-                System.out.println("Failed to delete employee with id: " + employeeId);
+                System.out.println("No employee found with employee_id: " + employeeId);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            DBConnectionManager.closeQuietly(null, pstmt, conn);
+            DBConnectionManager.closeQuietly(rs, selectStmt, null);
+            DBConnectionManager.closeQuietly(null, deleteStmt, conn);
         }
         return Optional.empty();
     }
